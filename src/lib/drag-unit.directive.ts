@@ -63,9 +63,9 @@ export class DragUnitDirective implements AfterViewInit, OnDestroy {
   @Output() unitMoved: EventEmitter<UnitMoved> = new EventEmitter();
 
 
-  @ContentChildren(DragHandleDirective) private _handles: QueryList<DragHandleDirective>;
+  @ContentChildren(DragHandleDirective, {descendants: true}) private _handles: QueryList<DragHandleDirective>;
 
-  @ContentChildren(DragRejectorDirective) private _rejectors: QueryList<DragRejectorDirective>;
+  @ContentChildren(DragRejectorDirective, {descendants: true}) private _rejectors: QueryList<DragRejectorDirective>;
 
   /** Indicate if the element is dragging or not */
   private _isDragging: boolean;
@@ -108,7 +108,7 @@ export class DragUnitDirective implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
 
     ['mousedown', 'touchstart'].forEach((e: string) => {
-      this._host.nativeElement.addEventListener(e, this._pointerDown.bind(this), { passive: false });
+      this._host.nativeElement.addEventListener(e, this._pointerDown.bind(this), { passive: false, capture: true });
     });
 
   }

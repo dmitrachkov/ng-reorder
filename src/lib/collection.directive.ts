@@ -6,18 +6,14 @@ import {
   EventEmitter,
   NgZone,
   Output,
-  OnDestroy,
   Host,
   HostBinding,
   Inject,
   Input,
-  OnInit,
-  ElementRef
 } from '@angular/core';
 import { DragUnitDirective as DragUnit, DRAG_COLLECTION } from './drag-unit.directive';
 import { SortService } from './sort.service';
 import { EventService } from './event.service';
-import { Subject } from 'rxjs';
 import { Point, CollectionSorted } from './interfaces';
 import { GLOBAL_CONFIG, Configuration } from './global-config';
 

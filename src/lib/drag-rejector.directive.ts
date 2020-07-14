@@ -1,6 +1,5 @@
 import { Directive, Inject, SkipSelf, ElementRef } from '@angular/core';
 import { DRAG_UNIT_PARENT } from './parent';
-import { DragUnitDirective } from './drag-unit.directive';
 
 @Directive({
   selector: '[dragRejector]'
