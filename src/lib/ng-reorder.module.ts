@@ -6,14 +6,14 @@ import { DragRejectorDirective } from './drag-rejector.directive';
 
 
 @NgModule({
-  declarations: [
-    DragCollectionDirective,
-    DragUnitDirective,
-    DragHandleDirective,
-    DragRejectorDirective,
-  ],
-  imports: [
-  ],
-  exports: [DragCollectionDirective, DragUnitDirective, DragHandleDirective, DragRejectorDirective]
+	declarations: [
+		DragCollectionDirective,
+		DragUnitDirective,
+		DragHandleDirective,
+		DragRejectorDirective,
+	],
+	imports: [
+	],
+	exports: [DragCollectionDirective, DragUnitDirective, DragHandleDirective, DragRejectorDirective]
 })
 export class NgReorderModule { }

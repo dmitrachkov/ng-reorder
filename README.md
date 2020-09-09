@@ -2,6 +2,8 @@
 
 This module provides a way to sort elements within a list by using drag-n-drop interface without any restrictions by direction.
 
+> see [live example](https://stackblitz.com/edit/ng-reorder?file=src/app/app.component.ts)
+
 ## Instalation
 
 `npm install ng-reorder`
@@ -112,132 +114,145 @@ import { Component } from '@angular/core';
 import { CollectionSorted, reorderItems } from 'ng-reorder';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.sass']
+	selector: 'my-app',
+	templateUrl: './app.component.html',
+	styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  test: number[];
 
-  k: number;
+	test: Array<number>;
 
-  getTest = (x: number) => {
-    const j = new Array<number>();
-    for (let i = 0; i < x; ++i) {
-      j.push(i);
-    }
-    this.k = x;
-    return j;
-  }
-  constructor() {
-    this.test = this.getTest(30);
-  }
+	k: number;
 
-  sort(e: CollectionSorted) {
-    this.test = reorderItems(this.test, e.previousIndex, e.currentIndex);
-  }
+	constructor() {
+		this.test = this.getTest(30);
+	}
 
-  add() {
-    this.test.push(this.k++);
-  }
-  remove() {
-    this.test.pop();
-    --this.k;
-  }
+	private getTest(x: number): Array<number> {
+		const j = new Array<number>();
+		for (let i = 0; i < x; ++i) {
+			j.push(i);
+		}
+		this.k = x;
+		return j;
+	}
+
+	public sort(e: CollectionSorted) {
+		this.test = reorderItems(this.test, e.previousIndex, e.currentIndex);
+	}
+
+	public add() {
+		this.test.push(this.k++);
+	}
+	public remove() {
+		this.test.pop();
+		--this.k;
+	}
+
 }
 ```
 2. Use `dragCollection` directive for wrapper of collection of your elements (`ul`, `ol`, or just `div` for instance)
 ```html
-<button class="add-remove" (click)="add()">add</button>
-<button class="add-remove" (click)="remove()">remove</button>
+<div id="buttons">
+	<button id="add" (click)="add()">add</button>
+	<button id="remove" (click)="remove()">remove</button>
+</div>
 
-<ul dragCollection (dropCompleted)="sort($event)">
-  <li *ngFor="let item of test" dragUnit [value]=item>
-    <div>
-      <span>{{item}}</span>
-      <div class="handle" dragHandle></div>
-      <div class="rejector" dragRejector></div> <!-- THIS ELEMENT WILL NOT RESPOND FOR DRAG-N-DROP -->
-    </div>
-  </li>
+<ul id="collection" dragCollection (dropCompleted)="sort($event)">
+	<li *ngFor="let item of test" dragUnit [value]=item>
+		<div class="handle" dragHandle></div>
+		<span>{{item}}</span>
+        <!-- THIS ELEMENT WILL NOT RESPOND FOR DRAG-N-DROP -->
+		<div class="rejector" dragRejector></div> 
+	</li>
 </ul>
 ```
 3. Style your elements
 ```css
-ul {
-	display: flex;
-	flex-wrap: wrap;
-	flex-direction: row;
-	align-content: space-around;
-	margin: 0;
-	padding: 0;
+div#buttons {
+    display: flex;
+    justify-content: space-around;
 }
 
-ul > li {
-	list-style: none;
-	display: block;
-	position: relative;
-	width: 70px;
-	height: 45px;
-	border: 5px dodgerblue;
-	border-style: outset;
-	border-radius: 8px;
-	background-color: black;
-	color: white;
-	text-align: center;
-	vertical-align: middle;
-	line-height: 40px;
-	margin: 5px;
-	user-select: none;
+div#buttons button {
+    color: white;
+    border: none;
+    background: none;
+    padding: 0.5em;
+    cursor: pointer;
+    font-family: sans-serif;
+    text-transform: uppercase;
+    min-width: 150px;
 }
 
-button.add-remove {
-	display: block;
-	width: 200px;
-	height: 50px;
-	color: white;
-	font-size: large;
-	border: none;
-	border-radius: 25px;
-	background: black;
-	margin: 5px auto;
-	cursor: pointer;
+div#buttons button:focus {
+    outline: none;
 }
 
-.in-action .drag-unit:not(.active) {
-	transition: 300ms transform cubic-bezier(0.2, 0, 0.2, 1);
+div#buttons button#add {
+    background: #58c292;
 }
 
-.drag-unit.active {
-	z-index: 2000;
-	box-shadow: 0px 0px 5px 2px #1e1e1e;
+div#buttons button#remove {
+    background: #cd3a3a;
 }
 
-.in-action .drag-unit.dropped {
-	box-shadow: 0px 0px black;
-	transition: transform 250ms cubic-bezier(0.5, 0, 0.2, 1), box-shadow 250ms ease;
+ul#collection {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 1em 0;
+    padding: 0;
 }
 
-.handle, .rejector {
-	width: 0;
-	height: calc(100% - 30px);
-	border-style: solid;
-	position: absolute;
+ul#collection li.drag-unit {
+    list-style: none;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 4em;
+    height: 4em;
+    box-shadow: 0px 0px 2px #333;
+    background-color: white;
+    color: #333;
+    text-align: center;
+    margin: 0.5em;
+    user-select: none;
+    transition: box-shadow 250ms ease;
+}
+
+ul#collection.in-action li.drag-unit:not(.active) {
+    transition: 300ms transform cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+ul#collection.in-action .drag-unit.active {
+    z-index: 2000;
+    box-shadow: 0px 0px 4px #333;
+}
+
+ul#collection.in-action .drag-unit.dropped {
+    box-shadow: 0px 0px #333;
+    transition: transform 250ms cubic-bezier(0.5, 0, 0.2, 1), box-shadow 250ms ease;
+    z-index: 2000;
+}
+
+.handle,
+.rejector {
+    width: 100%;
+    height: 1em;
 }
 
 .handle {
-	border-width: 0 20px 20px 0;
-	border-color: transparent dodgerblue transparent transparent;
-	top: -1px;
-	right: -0px;
-	cursor: move;
+    background: #58c292;
+    cursor: move;
 }
 
 .rejector {
-	border-width: 20px 0 0 20px;
-	border-color: transparent transparent transparent #1460ab;
-	bottom: -1px;
-	left: -0px;
-	cursor: not-allowed;
+    background: #cd3a3a;
+    cursor: not-allowed;
 }
 ```
 

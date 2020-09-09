@@ -3,7 +3,7 @@ import { isTouchEvent } from './utils';
 
 /** Returns { 0, 0 } point */
 export function createPoint() {
-    return { x: 0, y: 0 } as Point;
+	return { x: 0, y: 0 } as Point;
 }
 
 /**
@@ -12,10 +12,10 @@ export function createPoint() {
  * @param second second point
  */
 export function pointSum(first: Point, second: Point) {
-    return {
-        x: first.x + second.x,
-        y: first.y + second.y
-    } as Point;
+	return {
+		x: first.x + second.x,
+		y: first.y + second.y
+	} as Point;
 }
 
 /**
@@ -24,10 +24,10 @@ export function pointSum(first: Point, second: Point) {
  * @param second second point
  */
 export function pointDif(first: Point, second: Point) {
-    return {
-        x: first.x - second.x,
-        y: first.y - second.y
-    } as Point;
+	return {
+		x: first.x - second.x,
+		y: first.y - second.y
+	} as Point;
 }
 
 /**
@@ -35,9 +35,9 @@ export function pointDif(first: Point, second: Point) {
  * @param event Mouse or Touch event
  */
 export function pointFromPointerEvent(event: MouseEvent | TouchEvent) {
-    const $ = isTouchEvent(event) ? event.targetTouches[0] : event;
-    return {
-        x: $.clientX,
-        y: $.clientY
-    } as Point;
+	const $ = isTouchEvent(event) ? event.targetTouches[0] : event;
+	return {
+		x: $.clientX,
+		y: $.clientY
+	} as Point;
 }

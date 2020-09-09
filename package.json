@@ -1,13 +1,32 @@
 {
   "name": "ng-reorder",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "keywords": [
+    "sort",
+    "sortable",
+    "reorder",
+    "items",
+    "cell",
+    "drag",
+    "drag-n-drop"
+  ],
+  "description": "Sort elements within a list by using drag-n-drop interface without any restrictions by direction",
+  "homepage": "https://github.com/dmitrachkov/ng-reorder#readme",
+  "license": "MIT",
+  "author": {
+    "name": "Maksim Dmitrachkov",
+    "email": "max.dmitrachkov@gmail.com",
+    "url": "http://max-dm.com"
+  },
   "peerDependencies": {
     "@angular/common": "^9.0.5",
-    "@angular/core": "^9.0.5",
-    "tslib": "^1.10.0"
+    "@angular/core": "^9.0.5"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/dmitrachkov/ng-reorder.git"
+  },
+  "dependencies": {
+    "tslib": "^2.0.0"
   }
 }
