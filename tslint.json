@@ -12,6 +12,7 @@
       "element",
       "lib",
       "kebab-case"
-    ]
+    ],
+    "no-host-metadata-property": false
   }
 }

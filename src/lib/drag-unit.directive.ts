@@ -4,7 +4,6 @@ import {
 	SkipSelf,
 	ElementRef,
 	AfterViewInit,
-	HostBinding,
 	OnDestroy,
 	Output,
 	EventEmitter,
@@ -24,7 +23,6 @@ import { transitionTimeOf } from './transition';
 import { DragHandleDirective } from './drag-handle.directive';
 import { DragRejectorDirective } from './drag-rejector.directive';
 import { DRAG_UNIT_PARENT } from './parent';
-import { GLOBAL_CONFIG, Configuration } from './global-config';
 
 export const DRAG_COLLECTION = new InjectionToken<DragCollection>('Container');
 
@@ -32,46 +30,36 @@ export const DRAG_COLLECTION = new InjectionToken<DragCollection>('Container');
 	selector: '[dragUnit]',
 	providers: [
 		{ provide: DRAG_UNIT_PARENT, useExisting: DragUnitDirective }
-	]
+	],
+	host: {
+		'[class.drag-unit]': 'true',
+		'[class.active]': 'active',
+		'[class.dropped]': 'dropped',
+		'[class.disabled]': 'disabled'
+	}
 })
 export class DragUnitDirective implements AfterViewInit, OnDestroy {
 
-	@HostBinding('class')
-	get classList(): string {
-		const primary = this.class_primary ?? this.config.unit_class_primary;
-		const dragging = this._isDragging ? this.class_dragging ?? this.config.unit_class_dragging : false;
-		const disabled = this._disabled ? this.class_disabled ?? this.config.unit_class_disabled : false;
-		const dropped = this._isDropped ? 'dropped' : '';
-
-		return [primary, dragging, disabled, dropped].filter(Boolean).join(' ');
-	}
-
 	@Input('disabled') private _disabled: boolean;
 
-	@Input() private class_primary: string;
-
-	@Input() private class_dragging: string;
-
-	@Input() private class_disabled: string;
-
 	/** Emits when the element is successfully touched */
-	@Output() unitTaken: EventEmitter<UnitTaken> = new EventEmitter();
+	@Output() private unitTaken = new EventEmitter<UnitTaken>();
 
 	/** Emits when the element is released */
-	@Output() unitReleased: EventEmitter<UnitReleased> = new EventEmitter();
+	@Output() private unitReleased = new EventEmitter<UnitReleased>();
 
 	/** Emits when the element is moved on the page */
-	@Output() unitMoved: EventEmitter<UnitMoved> = new EventEmitter();
-
+	@Output() private unitMoved = new EventEmitter<UnitMoved>();
 
 	@ContentChildren(DragHandleDirective, { descendants: true }) private _handles: QueryList<DragHandleDirective>;
 
 	@ContentChildren(DragRejectorDirective, { descendants: true }) private _rejectors: QueryList<DragRejectorDirective>;
 
-	/** Indicate if the element is dragging or not */
-	private _isDragging: boolean;
+	// Indicate if the element is dragging or not
+	private _active = false;
 
-	private _isDropped: boolean;
+	// Indicate if the element is dropped
+	private _droppped = false;
 
 	/** Emits when the element is destroyed */
 	private _destroy = new Subject<void>();
@@ -95,23 +83,31 @@ export class DragUnitDirective implements AfterViewInit, OnDestroy {
 
 	private _scrollSubscription: Subscription = Subscription.EMPTY;
 
+	get active() {
+		return this._active;
+	}
+
+	get dropped() {
+		return this._droppped;
+	}
+
+	get disabled() {
+		return this._disabled;
+	}
+
 	constructor(
 		@Inject(DRAG_COLLECTION) @SkipSelf() public container: DragCollection,
-		@Inject(GLOBAL_CONFIG) @SkipSelf() private config: Configuration,
 		@SkipSelf() private eventService: EventService,
 		private _host: ElementRef<HTMLElement>,
 		private _zone: NgZone
 	) {
-		this._isDragging = this._isDropped = false;
 		this._origin = this._offset = this._scrollOrigin = this._scrollOffset = createPoint();
 	}
 
 	ngAfterViewInit() {
-
 		['mousedown', 'touchstart'].forEach((e: string) => {
 			this._host.nativeElement.addEventListener(e, this._pointerDown.bind(this), { passive: false, capture: true });
 		});
-
 	}
 
 	ngOnDestroy() {
@@ -127,12 +123,22 @@ export class DragUnitDirective implements AfterViewInit, OnDestroy {
 		this._host.nativeElement.style.transform = `translate(${shift.x}px, ${shift.y}px)`;
 	}
 
-	public getHost() {
-		return this._host.nativeElement;
+	public getRect(): ClientRect {
+		return this._host.nativeElement.getBoundingClientRect();
+	}
+
+	public reset() {
+		this._host.nativeElement.style.transform = null;
+		this._active = false;
+		this._droppped = false;
+		this._offset = this._origin = this._scrollOrigin = this._scrollOffset = this._pointerPosition = { x: 0, y: 0 };
+	}
+
+	public setOffset(point: Point) {
+		this._offset = point;
 	}
 
 	private _animateDroppedElement() {
-
 		return new Promise((resolve, reject) => {
 			this._zone.onStable.asObservable().pipe(first()).subscribe(resolve);
 		});
@@ -179,13 +185,13 @@ export class DragUnitDirective implements AfterViewInit, OnDestroy {
 
 	private _startDragSequence(event: MouseEvent | TouchEvent) {
 
-		if (this.container.isDisabled() || this._disabled) return;
+		if (this.container.disabled || this._disabled) return;
 		event.stopPropagation();
 
 		this._initDragSequence(event);
 
 		this._origin = this._pointerPosition = pointFromPointerEvent(event);
-		this._isDragging = true;
+		this._active = true;
 		this.container.start(this, this._origin);
 
 		this.unitTaken.emit({
@@ -197,6 +203,7 @@ export class DragUnitDirective implements AfterViewInit, OnDestroy {
 	private _stopDragSequence() {
 		this._moveSubscribtion.unsubscribe();
 		this._upSubscription.unsubscribe();
+		this._scrollSubscription.unsubscribe();
 
 		const delay = transitionTimeOf(this._host.nativeElement, 'transform');
 		setTimeout(() => {
@@ -205,20 +212,9 @@ export class DragUnitDirective implements AfterViewInit, OnDestroy {
 		}, delay * 1.5);
 	}
 
-	reset() {
-		this._host.nativeElement.style.transform = null;
-		this._isDragging = false;
-		this._isDropped = false;
-		this._offset = this._origin = this._scrollOrigin = this._scrollOffset = this._pointerPosition = { x: 0, y: 0 };
-	}
-
-	setOffset(point: Point) {
-		this._offset = point;
-	}
-
 	private _pointerDown(event: MouseEvent | TouchEvent) {
 
-		if (this.container.hasDragSequence()) return;
+		if (this.container.inAction) return;
 
 		const target = event.target as HTMLElement;
 
@@ -242,9 +238,9 @@ export class DragUnitDirective implements AfterViewInit, OnDestroy {
 	}
 
 	private _pointerUp(event: MouseEvent | TouchEvent) {
-		this._isDragging = false;
+		this._active = false;
 		this.applyTransformation(this._offset);
-		this._isDropped = true;
+		this._droppped = true;
 		this._animateDroppedElement().then(this._stopDragSequence.bind(this));
 
 		this.unitReleased.emit({

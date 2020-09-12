@@ -27,7 +27,7 @@ export class SortService {
 	}
 
 	private cachePosition(unit: DragUnit) {
-		this._listOfPositions.push(this.getPosition(unit, unit.getHost()));
+		this._listOfPositions.push(this.getPosition(unit));
 	}
 
 	private findIndex(point: Point): number {
@@ -46,10 +46,10 @@ export class SortService {
 		return -1;
 	}
 
-	private getPosition(unit: DragUnit, element: HTMLElement) {
+	private getPosition(unit: DragUnit) {
 		return {
 			unit,
-			rect: element.getBoundingClientRect(),
+			rect: unit.getRect(),
 			shift: createPoint()
 		} as UnitPosition;
 	}
@@ -60,7 +60,7 @@ export class SortService {
 
 	public cacheAllPositions() {
 		this._listOfPositions = new Array();
-		this._root._units.forEach(unit => this.cachePosition(unit));
+		this._root.units.forEach(unit => this.cachePosition(unit));
 	}
 
 	public moveUnits(unit: DragUnit, point: Point) {
@@ -114,21 +114,20 @@ export class SortService {
 		this._from = from;
 	}
 
-	public stop(unit: DragUnit) {
-		const $: CollectionSorted = {
-			collection: this._root,
-			unit,
-			previousIndex: this._from,
-			currentIndex: this._to
-		};
+	public stop(unit: DragUnit): Promise<CollectionSorted> {
+		return new Promise((resolve) => {
+			const $: CollectionSorted = {
+				collection: this._root,
+				unit,
+				previousIndex: this._from,
+				currentIndex: this._to
+			};
 
-		if (this._to !== null) {
-			this._root.dropCompleted.emit($);
-		}
+			resolve($);
 
-		this._listOfPositions = null;
-		this._from = null;
-		this._to = null;
-
+			this._listOfPositions = null;
+			this._from = null;
+			this._to = null;
+		});
 	}
 }

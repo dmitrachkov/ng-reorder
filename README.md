@@ -18,9 +18,6 @@ selector: `dragUnit`
 | Input          | Type    | Default value   | Description                                                                        |
 | -------------- | ------- | --------------- | ---------------------------------------------------------------------------------- |
 | disabled       | boolean | `false`         | An element will not response for dragging while this property it's `true`          |
-| class_primary  | string  | `drag-unit`     | Primary class name                                                                 |
-| class_dragging | string  | `active`        | Class name which will be attached to an element while it's dragging                |
-| class_disabled | string  | `disabled`      | Class name which will be attached to an element while it's disabled                |
 
 ### Outputs
 | Output       | Type                        | Description                                                                   |
@@ -37,9 +34,6 @@ selector: `dragCollection`
 | Input          | Type    | Default value | Description                                                                           |
 | -------------- | ------- | ------------- | ------------------------------------------------------------------------------------- |
 | disabled       | boolean | `false`       | Dragging sequence will not starts at all when `true`                                  |
-| class_primary  | string  | `collection`  | Primary class name                                                                    |
-| class_dragging | string  | `in-action`   | Class name which will be attached to a collection while it's descendants are dragging |
-| class_disabled | string  | `disabled`    | Class name which will be attached to a collection while it's disabled                 |
 
 #### Outputs
 | Output        | Type                            | Description                                        |
